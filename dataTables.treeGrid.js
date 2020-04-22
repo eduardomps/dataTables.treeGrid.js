@@ -3,7 +3,7 @@
  * @description TreeGrid extension for DataTable
  * @version     1.0.4
  * @file dataTables.treeGrid.js
- * @author homfen(homfen@outlook.com)
+ * @author homfen(homfen@outlook.com) 
  */
 (function (factory) {
     if (typeof define === 'function' && define.amd) {
@@ -76,6 +76,7 @@
             var select = settings._select;
             var dataTable = $(settings.nTable).dataTable().api();
             var sLeft = this.s.left;
+            var sProperty = this.s.property;
             var treeGridRows = {};
             var expandIcon = $(this.s.expandIcon);
             var collapseIcon = $(this.s.collapseIcon);
@@ -130,11 +131,11 @@
                 icon.css('marginLeft', layer * sLeft + 'px');
                 td.removeClass('treegrid-control').addClass('treegrid-control-open');
                 td.html('').append(icon);
-
-                if (data.children && data.children.length) {
+                var children = data[sProperty];
+                if (children && children.length) {
                     var subRows = treeGridRows[parentTrId] = [];
                     var prevRow = row.node();
-                    data.children.forEach(function (item) {
+                    children.forEach(function (item) {
                         var newRow = dataTable.row.add(item);
                         var node = newRow.node();
                         var treegridTd = $(node).find('.treegrid-control');
@@ -142,7 +143,12 @@
                         $(node).attr('parent-index', index);
                         treegridTd.find('span').css('marginLeft', left + 'px');
                         treegridTd.next().css('paddingLeft', paddingLeft + left + 'px');
-                        $(node).insertAfter(prevRow);
+                        var order = dataTable.order();
+                        if (!order || !order.length || order[0][1] === "asc") {
+                            $(node).insertAfter(prevRow);
+                        } else {
+                            $(node).insertBefore(prevRow);
+                        }
                         prevRow = node;
                         subRows.push(node);
                     });
